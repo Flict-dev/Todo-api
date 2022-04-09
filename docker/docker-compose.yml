@@ -9,3 +9,31 @@ services:
       POSTGRES_DB: actix
     ports:
       - 5432:5432 
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: '512'
+    #       cpus: '1'
+  api:
+    image: flict/todo-api
+    build: .
+    links:
+      - postrgres
+    environment:
+        SERVER.HOST: 0.0.0.0
+        SERVER.PORT: 7878
+        PG.HOST: postrgres
+        PG.PORT: 5432
+        PG.USER: actix
+        PG.PASSWORD: actix
+        PG.DBNAME: actix
+        PG.POOL.MAX_SIZE: 30
+        RUST_LOG: debug
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: '512'
+    #       cpus: '1'
+    ports:
+      - 7878:7878 
+    

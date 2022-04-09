@@ -1,7 +1,9 @@
 mod config;
 mod db;
 mod handlers;
-mod models;
+mod db_models;
+mod req_models;
+
 
 // use actix_web::{web, App, HttpServer, Responder};
 
@@ -27,6 +29,10 @@ async fn main() -> io::Result<()> {
             .app_data(Data::new(pool.clone()))
             .route("/", web::get().to(status))
             .route("/todos{_:/?}", web::get().to(get_todos))
+            .route("/todos{_:/?}", web::post().to(create_list))
+            .route("/todos/{list_id}/items{_:/?}", web::get().to(get_items))
+            .route("/todos/{list_id}/items{_:/?}", web::post().to(create_item))
+            .route("/todos/{list_id}/items{_:/?}", web::put().to(check_todo))
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
     .run()
