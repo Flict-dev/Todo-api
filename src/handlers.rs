@@ -1,72 +1,78 @@
-use crate::db;
+use crate::errors::{AppError, AppErrorType};
 use crate::req_models::{CreateList, CreateListItem, ListItem, ResultResponse, Status};
-use actix_web::{web, Responder};
+use crate::{db, AppState};
+use actix_web::{get, post, put, web, HttpResponse, Responder};
 use deadpool_postgres::{Client, Pool};
-use std::io::ErrorKind::Other;
+use slog::{crit, o, Logger};
 
+async fn get_db_client(poll: &Pool, logger: &Logger) -> Result<Client, AppError> {
+    let log = logger.new(o!("handler" => "get_db_client"));
+
+    poll.get().await.map_err(|err| {
+        let sublog = log.new(o!("cause" => err.to_string()));
+        crit!(sublog, "Error with connection to database");
+        AppError {
+            message: None,
+            cause: Some(err.to_string()),
+            error_type: AppErrorType::DbError,
+        }
+    })
+}
+
+#[get("/")]
 pub async fn status() -> impl Responder {
-    actix_web::HttpResponse::Ok().json(Status {
+    HttpResponse::Ok().json(Status {
         status: String::from("Ok"),
     })
 }
 
-pub async fn get_todos(db_pool: web::Data<Pool>) -> impl Responder {
-    let client: Client = db_pool.get().await.expect("Error connecting to database");
+#[get("/todos{_:/?}")]
+pub async fn get_todos(state: web::Data<AppState>) -> Result<impl Responder, AppError> {
+    let client: Client = get_db_client(&state.pool, &state.logger).await?;
 
     let result = db::get_todos(&client).await;
 
-    match result {
-        Ok(todos) => actix_web::HttpResponse::Ok().json(todos),
-        Err(_) => actix_web::HttpResponse::InternalServerError().into(),
-    }
+    result.map(|todos| HttpResponse::Ok().json(todos))
 }
 
-pub async fn get_items(db_pool: web::Data<Pool>, path: web::Path<(i32,)>) -> impl Responder {
-    let client: Client = db_pool.get().await.expect("Error connecting to database");
+#[get("/todos/{list_id}/items{_:/?}")]
+pub async fn get_items(state: web::Data<AppState>, path: web::Path<(i32,)>) -> impl Responder {
+    let client: Client = get_db_client(&state.pool, &state.logger).await?;
 
     let result = db::get_items(&client, path.0).await;
 
-    match result {
-        Ok(items) => actix_web::HttpResponse::Ok().json(items),
-        Err(_) => actix_web::HttpResponse::InternalServerError().into(),
-    }
+    result.map(|items| HttpResponse::Ok().json(items))
 }
 
-pub async fn create_list(db_pool: web::Data<Pool>, list: web::Json<CreateList>) -> impl Responder {
-    let client: Client = db_pool.get().await.expect("Error connecting to database");
+#[post("/todos{_:/?}")]
+pub async fn create_list(
+    state: web::Data<AppState>,
+    list: web::Json<CreateList>,
+) -> impl Responder {
+    let client: Client = get_db_client(&state.pool, &state.logger).await?;
 
     let result = db::create_list(&client, list.title.clone()).await;
 
-    match result {
-        Ok(list) => actix_web::HttpResponse::Ok().json(list),
-        Err(_) => actix_web::HttpResponse::InternalServerError().into(),
-    }
+    result.map(|list| HttpResponse::Ok().json(list))
 }
 
+#[post("/todos/{list_id}/items{_:/?}")]
 pub async fn create_item(
-    db_pool: web::Data<Pool>,
+    state: web::Data<AppState>,
     data: web::Json<CreateListItem>,
 ) -> impl Responder {
-    let client: Client = db_pool.get().await.expect("Error connecting to database");
+    let client: Client = get_db_client(&state.pool, &state.logger).await?;
 
     let result = db::create_item(&client, data.list_id, data.title.clone()).await;
 
-    match result {
-        Ok(item) => actix_web::HttpResponse::Ok().json(item),
-        Err(_) => actix_web::HttpResponse::InternalServerError().into(),
-    }
+    result.map(|item| HttpResponse::Ok().json(item))
 }
 
-pub async fn check_todo(db_pool: web::Data<Pool>, data: web::Json<ListItem>) -> impl Responder {
-    let client = db_pool.get().await.expect("Error connecting to database");
+#[put("/todos/{list_id}/items{_:/?}")]
+pub async fn check_todo(state: web::Data<AppState>, data: web::Json<ListItem>) -> impl Responder {
+    let client: Client = get_db_client(&state.pool, &state.logger).await?;
 
     let result = db::check_todo(&client, data.id, data.list_id).await;
 
-    match result {
-        Ok(()) => actix_web::HttpResponse::Ok().json(ResultResponse { success: true }),
-        Err(err) if err.kind() == Other => {
-            actix_web::HttpResponse::Ok().json(ResultResponse { success: false })
-        }
-        Err(_) => actix_web::HttpResponse::InternalServerError().into(),
-    }
+    result.map(|res| HttpResponse::Ok().json(ResultResponse { success: res }))
 }
