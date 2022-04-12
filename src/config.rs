@@ -1,5 +1,12 @@
 use config::{Config, ConfigError};
+use deadpool_postgres::Runtime;
 use serde::Deserialize;
+use slog::{o, Drain, Logger};
+use slog_async;
+use slog_term;
+use tokio_postgres::NoTls;
+
+use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct ServerConfig {
@@ -20,5 +27,18 @@ impl ToDoConfig {
             .build()?;
         let todo_config: ToDoConfig = config.try_deserialize().expect("Fail to deserialize");
         Ok(todo_config)
+    }
+
+    fn configure_logger(&self) -> Logger {
+        let decorator = slog_term::TermDecorator::new().build();
+        let console_drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let console_drain = slog_async::Async::new(console_drain).build().fuse();
+        slog::Logger::root(console_drain, o!("v" => env!("CARGO_PKG_VERSION")))
+    }
+
+    pub fn new_state(&self) -> AppState {
+        let logger = self.configure_logger();
+        let pool = self.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
+        AppState { pool, logger }
     }
 }

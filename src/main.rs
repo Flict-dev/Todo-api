@@ -10,21 +10,12 @@ mod req_models;
 use crate::handlers::*;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use deadpool_postgres::{Pool, Runtime};
+use deadpool_postgres::Pool;
 use dotenv;
-use slog::{info, o, Drain, Logger};
-use slog_async;
-use slog_term;
+use slog::{info, Logger};
 use std::io;
-use tokio_postgres::NoTls;
 
-fn configure_logger() -> Logger {
-    let decorator = slog_term::TermDecorator::new().build();
-    let console_drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let console_drain = slog_async::Async::new(console_drain).build().fuse();
-    slog::Logger::root(console_drain, o!("v" => env!("CARGO_PKG_VERSION")))
-}
-
+#[derive(Clone)]
 pub struct AppState {
     pub pool: Pool,
     pub logger: Logger,
@@ -35,20 +26,18 @@ async fn main() -> io::Result<()> {
     dotenv::dotenv().ok();
 
     let config = crate::config::ToDoConfig::new().unwrap();
-    let pool = config.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
-    let logger = configure_logger();
+    let state = config.new_state();
+    // let pool = config.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
+    // let logger = config.configure_logger();
 
     info!(
-        logger,
+        state.logger,
         "Starting web server at {}:{}", config.server.host, config.server.port
     );
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(AppState {
-                pool: pool.clone(),
-                logger: logger.clone(),
-            }))
+            .app_data(Data::new(state.clone()))
             .service(status)
             .service(get_todos)
             .service(create_list)

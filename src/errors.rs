@@ -22,7 +22,7 @@ impl fmt::Display for AppError {
 }
 
 impl AppError {
-    fn message(&self) -> String {
+    pub fn message(&self) -> String {
         match &*self {
             AppError {
                 message: Some(message),
@@ -33,7 +33,7 @@ impl AppError {
             AppError {
                 message: None,
                 cause: _,
-                error_type: AppErrorType::NotFoundError,
+                error_type: AppErrorType::DbError,
             } => String::from("The requested item was not found"),
 
             _ => String::from("An unexpected error has ocured"),
@@ -65,5 +65,39 @@ impl ResponseError for AppError {
         HttpResponse::build(self.status_code()).json(AppErrorResponse {
             error: self.message(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::{AppError, AppErrorType};
+
+    #[test]
+    fn test_default_message() {
+        let db_err = AppError {
+            message: None,
+            cause: None,
+            error_type: AppErrorType::DbError,
+        };
+
+        assert_eq!(
+            db_err.message(),
+            "The requested item was not found".to_string(),
+            "Default message doesn't match"
+        )
+    }
+
+    #[test]
+    fn test_custom_message() {
+        let cust_msg = "Custom error message".to_string();
+
+        let db_err = AppError {
+            message: Some(cust_msg.clone()),
+            cause: None,
+            error_type: AppErrorType::DbError,
+        };
+
+        assert_eq!(db_err.message(), cust_msg, "Custom message doesn't match")
     }
 }
