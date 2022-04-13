@@ -31,8 +31,8 @@ jobs:
       run:  cargo install diesel_cli --no-default-features --features postgres
     - name: Run migrations 
       run: diesel migration run 
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      env:
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
     - name: Copy .env file
       run: cp .env.github
     - name: Build
