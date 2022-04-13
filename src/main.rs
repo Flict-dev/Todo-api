@@ -5,8 +5,6 @@ mod errors;
 mod handlers;
 mod req_models;
 
-// use actix_web::{web, App, HttpServer, Responder};
-
 use crate::handlers::*;
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
@@ -27,8 +25,6 @@ async fn main() -> io::Result<()> {
 
     let config = crate::config::ToDoConfig::new().unwrap();
     let state = config.new_state();
-    // let pool = config.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
-    // let logger = config.configure_logger();
 
     info!(
         state.logger,
@@ -49,3 +45,7 @@ async fn main() -> io::Result<()> {
     .run()
     .await
 }
+
+#[cfg(test)]
+// #[cfg(feature = "integration")]
+mod integration_tests;

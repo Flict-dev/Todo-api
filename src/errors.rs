@@ -2,6 +2,7 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use serde::Serialize;
 use std::fmt;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum AppErrorType {
     DbError,

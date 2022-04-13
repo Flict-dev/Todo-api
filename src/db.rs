@@ -12,7 +12,7 @@ pub async fn get_todos(client: &Client) -> Result<Vec<TodoList>, AppError> {
     let todos: Vec<TodoList> = client
         .query(&statement, &[])
         .await
-        .expect("Error getting todo list")
+        .map_err(AppError::db_error)?
         .iter()
         .map(|todo| TodoList::from_row_ref(todo).unwrap())
         .collect();
@@ -28,7 +28,7 @@ pub async fn get_items(client: &Client, list_id: i32) -> Result<Vec<TodoItem>, A
     let items: Vec<TodoItem> = client
         .query(&statement, &[&list_id])
         .await
-        .expect("Error getting todo items")
+        .map_err(AppError::db_error)?
         .iter()
         .map(|item| TodoItem::from_row_ref(&item).unwrap())
         .collect();
@@ -45,7 +45,7 @@ pub async fn create_list(client: &Client, title: String) -> Result<TodoList, App
     client
         .query(&statement, &[&title])
         .await
-        .expect("Error creating todo list")
+        .map_err(AppError::db_error)?
         .iter()
         .map(|list| TodoList::from_row_ref(&list).unwrap())
         .collect::<Vec<TodoList>>()
@@ -72,7 +72,7 @@ pub async fn create_item(
     client
         .query(&statement, &[&title, &lits_id])
         .await
-        .expect("Error creating todo item")
+        .map_err(AppError::db_error)?
         .iter()
         .map(|item| TodoItem::from_row_ref(&item).unwrap())
         .collect::<Vec<TodoItem>>()
@@ -95,7 +95,7 @@ pub async fn check_todo(client: &Client, id: i32, list_id: i32) -> Result<bool, 
     let result = client
         .execute(&statement, &[&id, &list_id])
         .await
-        .expect("Error checking todo item");
+        .map_err(AppError::db_error)?;
 
     match result {
         ref updated if *updated == 1 => Ok(true),
