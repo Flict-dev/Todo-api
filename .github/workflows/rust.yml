@@ -33,7 +33,7 @@ jobs:
     - name: Run migrations 
       run: diesel migration run 
       env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
     - name: Copy .env file
       run: cp .env.github .env
     - name: Build
