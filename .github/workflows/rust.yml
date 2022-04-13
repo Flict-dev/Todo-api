@@ -17,7 +17,7 @@ jobs:
     services:
       postrgres:
         image: postgres:11-alpine
-        environment:
+        env:
           POSTGRES_PASSWORD: actix
           POSTGRES_USER: actix
           POSTGRES_DB: actix
