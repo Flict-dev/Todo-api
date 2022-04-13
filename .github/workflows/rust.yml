@@ -18,9 +18,9 @@ jobs:
       postrgres:
         image: postgres:11-alpine
         env:
-          POSTGRES_PASSWORD: actix
-          POSTGRES_USER: actix
-          POSTGRES_DB: actix
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
         ports:
           - 5432:5432 
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
