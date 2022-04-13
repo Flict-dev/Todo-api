@@ -34,7 +34,7 @@ jobs:
       env:
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
     - name: Copy .env file
-      run: cp .env.github
+      run: cp .env.github .env
     - name: Build
       run: cargo build --verbose
     - name: Run tests
