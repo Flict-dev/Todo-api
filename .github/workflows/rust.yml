@@ -13,7 +13,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    container: 
+      image: flict/todo-api-cache
     services:
       postrgres:
         image: postgres:11-alpine
@@ -27,12 +28,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Install diesel
-      run:  cargo install diesel_cli --no-default-features --features postgres
+    - name: Move cache
+      run: mv /cache/target .
     - name: Run migrations 
       run: diesel migration run 
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
     - name: Copy .env file
       run: cp .env.github
     - name: Build
