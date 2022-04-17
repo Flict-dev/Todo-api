@@ -1,5 +1,4 @@
-use crate::apps::td_model::NewTodo;
-use crate::apps::todo::model::TodoList;
+use crate::apps::todo::models::{TodoList, NewTodo};
 use crate::errors::AppError;
 use crate::schema::todo_list::dsl::*;
 use crate::Connection;

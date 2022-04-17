@@ -1,5 +1,4 @@
-use crate::apps::ti_model::NewTodoItem;
-use crate::apps::todo_item::model::TodoItem;
+use crate::apps::ti_models::{NewTodoItem, TodoItem};
 use crate::errors::AppError;
 use crate::schema::todo_item::dsl::*;
 use crate::Connection;

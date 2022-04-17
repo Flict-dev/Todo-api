@@ -2,7 +2,7 @@
 mod todo_tests {
 
     use crate::apps::td_controllers;
-    use crate::apps::td_model::TodoList;
+    use crate::apps::td_models::TodoList;
 
     use crate::config::ToDoConfig;
     use crate::AppState;

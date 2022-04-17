@@ -1,6 +1,6 @@
 pub mod controllers;
 pub mod logic;
-pub mod model;
+pub mod models;
 pub mod schema;
 pub mod tests;
 

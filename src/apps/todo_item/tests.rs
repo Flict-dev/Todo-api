@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod todo_item_tests {
     use crate::apps::td_controllers;
-    use crate::apps::td_model::TodoList;
+    use crate::apps::td_models::TodoList;
     use crate::apps::ti_controllers;
-    use crate::apps::ti_model::TodoItem;
+    use crate::apps::ti_models::TodoItem;
 
     use crate::config::ToDoConfig;
     use crate::AppState;
@@ -244,9 +244,6 @@ mod todo_item_tests {
             .to_request();
 
         let res = test::call_service(&app, req).await;
-        assert!(
-            res.status().is_success(),
-            "Fail to update item"
-        )
+        assert!(res.status().is_success(), "Fail to update item")
     }
 }
