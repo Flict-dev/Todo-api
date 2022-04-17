@@ -10,13 +10,10 @@ table! {
 table! {
     todo_list (id) {
         id -> Int4,
-        title -> Nullable<Varchar>,
+        title -> Varchar,
     }
 }
 
 joinable!(todo_item -> todo_list (list_id));
 
-allow_tables_to_appear_in_same_query!(
-    todo_item,
-    todo_list,
-);
+allow_tables_to_appear_in_same_query!(todo_item, todo_list,);

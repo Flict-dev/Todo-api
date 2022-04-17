@@ -1,10 +1,11 @@
 use config::{Config, ConfigError};
-use deadpool_postgres::Runtime;
+use diesel::pg::PgConnection;
+use diesel::r2d2::ConnectionManager;
+use r2d2;
 use serde::Deserialize;
 use slog::{o, Drain, Logger};
 use slog_async;
 use slog_term;
-use tokio_postgres::NoTls;
 
 use crate::AppState;
 
@@ -17,7 +18,7 @@ pub struct ServerConfig {
 #[derive(Deserialize)]
 pub struct ToDoConfig {
     pub server: ServerConfig,
-    pub pg: deadpool_postgres::Config,
+    pub database_url: String,
 }
 
 impl ToDoConfig {
@@ -38,7 +39,10 @@ impl ToDoConfig {
 
     pub fn new_state(&self) -> AppState {
         let logger = self.configure_logger();
-        let pool = self.pg.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
+        let pool: ConnectionManager<PgConnection> = ConnectionManager::new(&self.database_url);
+        let pool = r2d2::Pool::builder()
+            .build(pool)
+            .expect("Failed to create pool.");
         AppState { pool, logger }
     }
 }

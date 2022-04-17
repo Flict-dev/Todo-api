@@ -8,12 +8,10 @@ edition = "2021"
 [dependencies]
 actix-web = "4"
 serde = { version = "1.0.136", features = ["derive"] }
+diesel = { version = "1.4.8", features = ["postgres", "r2d2"] }
+r2d2 = "0.8.9"
 dotenv = "0.15.0"
 config = "0.13.0"
-tokio-pg-mapper = "0.2.0"
-tokio-pg-mapper-derive = "0.2.0"
-tokio-postgres = "0.7.5"
-deadpool-postgres = { version = "0.10.2", features = ['serde'] }
 env_logger = "0.9.0"
 log = "0.4.0"
 slog = "2.7.0"

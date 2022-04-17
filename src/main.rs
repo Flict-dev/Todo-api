@@ -1,21 +1,30 @@
-mod config;
-mod db;
-mod db_models;
-mod errors;
-mod handlers;
-mod req_models;
+#[macro_use]
+extern crate diesel;
 
-use crate::handlers::*;
+mod apps;
+mod config;
+mod errors;
+pub mod schema;
+mod utils;
+
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use deadpool_postgres::Pool;
+use apps::todo::controllers::*;
+use apps::todo_item::controllers::*;
+use diesel::pg::PgConnection;
+use diesel::r2d2::ConnectionManager;
 use dotenv;
+use r2d2::Pool;
+use r2d2::PooledConnection;
 use slog::{info, Logger};
 use std::io;
 
+type DbPool = Pool<ConnectionManager<PgConnection>>;
+type Connection = PooledConnection<ConnectionManager<PgConnection>>;
+
 #[derive(Clone)]
 pub struct AppState {
-    pub pool: Pool,
+    pub pool: DbPool,
     pub logger: Logger,
 }
 
@@ -36,15 +45,12 @@ async fn main() -> io::Result<()> {
             .app_data(Data::new(state.clone()))
             .service(status)
             .service(get_todos)
-            .service(create_list)
+            .service(create_todo)
             .service(get_items)
             .service(create_item)
-            .service(check_todo)
+            .service(check_todo_item)
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
     .run()
     .await
 }
-
-#[cfg(test)]
-mod integration_tests;
