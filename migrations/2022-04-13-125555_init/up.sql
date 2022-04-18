@@ -3,6 +3,7 @@
 create table todo_list (
     id serial primary key,
     title varchar(150) not null
+    user_id integer not null
 );
 
 create table todo_item (

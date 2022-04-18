@@ -8,7 +8,7 @@ pub mod schema;
 mod utils;
 
 use actix_web::web::Data;
-use actix_web::{App, HttpServer};
+use actix_web::{web, App, HttpServer};
 use apps::todo::controllers::*;
 use apps::todo_item::controllers::*;
 use diesel::pg::PgConnection;
@@ -44,11 +44,14 @@ async fn main() -> io::Result<()> {
         App::new()
             .app_data(Data::new(state.clone()))
             .service(status)
-            .service(get_todos)
-            .service(create_todo)
-            .service(get_items)
-            .service(create_item)
-            .service(check_todo_item)
+            .service(
+                web::scope("/api")
+                    .service(get_todos)
+                    .service(create_todo)
+                    .service(get_items)
+                    .service(create_item)
+                    .service(check_todo_item),
+            )
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
     .run()
