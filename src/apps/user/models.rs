@@ -2,12 +2,6 @@ use crate::schema::users;
 use diesel::Queryable;
 use serde::{Deserialize, Serialize};
 
-// id -> Int4,
-// name -> Text,
-// password -> Text,
-// email -> Text,
-// list_id -> Int4,
-
 #[derive(Serialize, Deserialize, Queryable)]
 pub struct User {
     pub id: i32,

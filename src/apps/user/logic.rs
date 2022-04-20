@@ -4,7 +4,16 @@ use crate::schema::users::dsl::*;
 use crate::Connection;
 use diesel::prelude::*;
 
-pub fn get_user(conn: &Connection, user_id: i32) -> Result<User, AppError> {
+pub fn get_user_by_name(conn: &Connection, user_name: String) -> Result<User, AppError> {
+    let user = users
+        .filter(name.eq(user_name))
+        .get_result::<User>(conn)
+        .map_err(AppError::db_error)?;
+
+    Ok(user)
+}
+
+pub fn get_user_by_id(conn: &Connection, user_id: i32) -> Result<User, AppError> {
     let user = users
         .find(user_id)
         .get_result::<User>(conn)

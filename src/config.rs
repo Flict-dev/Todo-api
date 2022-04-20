@@ -19,6 +19,7 @@ pub struct ServerConfig {
 pub struct ToDoConfig {
     pub server: ServerConfig,
     pub database_url: String,
+    pub secret_key: String,
 }
 
 impl ToDoConfig {

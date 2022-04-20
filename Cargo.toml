@@ -17,6 +17,8 @@ log = "0.4.0"
 slog = "2.7.0"
 slog-term = "2.7.0"
 slog-async = "2.7.0"
+jsonwebtoken = "8.1.0"
+sha2 = { version = "0.10", default-features = false }
 
 [dev-dependencies]
 lazy_static = "1.4.0"
