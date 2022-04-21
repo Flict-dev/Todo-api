@@ -7,7 +7,7 @@ use slog::{o, Drain, Logger};
 use slog_async;
 use slog_term;
 
-use crate::AppState;
+use crate::{apps::user::crypto::Crypto, AppState};
 
 #[derive(Deserialize)]
 pub struct ServerConfig {
@@ -44,6 +44,11 @@ impl ToDoConfig {
         let pool = r2d2::Pool::builder()
             .build(pool)
             .expect("Failed to create pool.");
-        AppState { pool, logger }
+        let crypto = Crypto::new(self.secret_key.clone());
+        AppState {
+            pool,
+            logger,
+            crypto,
+        }
     }
 }

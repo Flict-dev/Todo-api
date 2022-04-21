@@ -7,6 +7,7 @@ use std::fmt;
 pub enum AppErrorType {
     DbError,
     NotFoundError,
+    Unauthorized,
 }
 
 #[derive(Debug)]
@@ -48,6 +49,14 @@ impl AppError {
             error_type: AppErrorType::DbError,
         }
     }
+
+    pub fn unauthorized() -> AppError {
+        AppError {
+            message: Some("User unauthorized".to_string()),
+            cause: None,
+            error_type: AppErrorType::NotFoundError,
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -60,6 +69,7 @@ impl ResponseError for AppError {
         match self.error_type {
             AppErrorType::DbError => StatusCode::INTERNAL_SERVER_ERROR,
             AppErrorType::NotFoundError => StatusCode::NOT_FOUND,
+            AppErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
         }
     }
     fn error_response(&self) -> HttpResponse {

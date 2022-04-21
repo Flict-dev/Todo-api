@@ -7,6 +7,7 @@ mod errors;
 pub mod schema;
 mod utils;
 
+use crate::apps::user::crypto::Crypto;
 use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use apps::todo::controllers::*;
@@ -26,6 +27,7 @@ type Connection = PooledConnection<ConnectionManager<PgConnection>>;
 pub struct AppState {
     pub pool: DbPool,
     pub logger: Logger,
+    pub crypto: Crypto,
 }
 
 #[actix_web::main]

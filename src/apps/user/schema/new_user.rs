@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct SchemaNewUser {
     pub name: String,
     pub email: String,
-    pub hashed_password: String,
+    pub password: String,
 }
 
 #[derive(Deserialize, Serialize)]

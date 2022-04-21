@@ -1,3 +1,4 @@
+use chrono::{Duration, Utc};
 use jsonwebtoken::errors::Error;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
@@ -5,12 +6,15 @@ use sha2::{Digest, Sha256};
 
 #[derive(Serialize, Deserialize)]
 pub struct Claims {
-    user_id: i32,
+    pub user_id: i32,
+    pub exp: usize,
 }
 
 impl Claims {
     pub fn new(user_id: i32) -> Claims {
-        Claims { user_id }
+        let _date = Utc::now() + Duration::hours(3);
+        let exp = _date.timestamp() as usize;
+        Claims { user_id, exp }
     }
 }
 
@@ -28,13 +32,14 @@ pub trait Validate {
     fn validate_password(&self, plain_password: String, hashed_password: String) -> bool;
 }
 
+#[derive(Clone)]
 pub struct Crypto {
     secret_key: String,
 }
 
 impl Crypto {
     pub fn new(secret_key: String) -> Crypto {
-      Crypto { secret_key }
+        Crypto { secret_key }
     }
 }
 
@@ -53,5 +58,36 @@ impl Encode for Crypto {
         let mut hasher = Sha256::new();
         hasher.update(plain_password.into_bytes());
         format!("{:x}", hasher.finalize())
+    }
+}
+
+impl Decode for Crypto {
+    fn decode_jwt(&self, token: String) -> Result<Claims, Error> {
+        let token = decode::<Claims>(
+            &token,
+            &DecodingKey::from_secret(self.secret_key.as_ref()),
+            &Validation::default(),
+        )?;
+        Ok(token.claims)
+    }
+}
+
+impl Validate for Crypto {
+    fn validate_jwt(&self, token: String) -> bool {
+        let _date = Utc::now() + Duration::hours(3);
+        let current_exp = _date.timestamp() as usize;
+        let claims = self.decode_jwt(token).unwrap();
+        if claims.exp > current_exp {
+            return true;
+        }
+        return false;
+    }
+
+    fn validate_password(&self, plain_password: String, hashed_password: String) -> bool {
+        let hash = &self.hash_password(plain_password);
+        if *hash == hashed_password {
+            return true;
+        }
+        return false;
     }
 }
