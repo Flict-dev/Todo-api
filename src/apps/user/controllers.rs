@@ -69,8 +69,9 @@ pub async fn information(
                         let user = u_logic::get_user_by_id(&conn, claims.user_id)
                             .map_err(log_error(log))?;
                         return Ok(HttpResponse::Ok().json(user));
+                    } else {
+                        return Err(AppError::unauthorized("Outdated token"));
                     }
-                    return Err(AppError::unauthorized("Outdated token"));
                 }
                 Err(_) => Err(AppError::unauthorized("Invalid token")),
             }
