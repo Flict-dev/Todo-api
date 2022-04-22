@@ -12,7 +12,7 @@ pub struct Claims {
 
 impl Claims {
     pub fn new(user_id: i32) -> Claims {
-        let _date = Utc::now(); // + Duration::hours(3)
+        let _date = Utc::now() + Duration::hours(3);
         let exp = _date.timestamp() as usize;
         Claims { user_id, exp }
     }
