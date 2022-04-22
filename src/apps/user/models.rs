@@ -8,7 +8,7 @@ pub struct User {
     pub name: String,
     pub password: String,
     pub email: String,
-    pub todo_id: i32,
+    pub todo_id: Option<i32>,
 }
 
 #[derive(Insertable, Deserialize, Serialize)]
@@ -17,4 +17,5 @@ pub struct NewUser<'a> {
     pub name: &'a str,
     pub password: &'a str,
     pub email: &'a str,
+    pub todo_id: Option<i32>
 }

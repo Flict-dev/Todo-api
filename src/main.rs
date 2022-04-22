@@ -12,6 +12,7 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use apps::todo::controllers::*;
 use apps::todo_item::controllers::*;
+use apps::user::controllers::*;
 use diesel::pg::PgConnection;
 use diesel::r2d2::ConnectionManager;
 use dotenv;
@@ -52,7 +53,10 @@ async fn main() -> io::Result<()> {
                     .service(create_todo)
                     .service(get_items)
                     .service(create_item)
-                    .service(check_todo_item),
+                    .service(check_todo_item)
+                    .service(login)
+                    .service(register)
+                    .service(information),
             )
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?

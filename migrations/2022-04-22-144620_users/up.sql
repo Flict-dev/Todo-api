@@ -2,9 +2,9 @@
 
 create table users (
   id serial primary key,
-  name text not null,
+  name text not null unique,
   password text not null,
-  email text not null,
-  todo_id integer not null,
+  email text not null unique,
+  todo_id integer,
   foreign key (todo_id) references todo_list(id)
 );

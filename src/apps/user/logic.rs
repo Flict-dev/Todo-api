@@ -32,6 +32,7 @@ pub fn create_user<'a>(
         name: user_name,
         password: user_password,
         email: user_email,
+        todo_id: None,
     };
 
     let new_user = diesel::insert_into(users)
@@ -40,18 +41,4 @@ pub fn create_user<'a>(
         .map_err(AppError::db_error)?;
 
     Ok(new_user)
-}
-
-pub fn update_user<'a>(
-    conn: &Connection,
-    user_id: i32,
-    user_email: &'a str,
-) -> Result<User, AppError> {
-    let up_user = diesel::update(users)
-        .filter(id.eq(user_id))
-        .set(email.eq(user_email))
-        .get_result(conn)
-        .map_err(AppError::db_error)?;
-
-    Ok(up_user)
 }

@@ -28,7 +28,7 @@ pub trait Decode {
 }
 
 pub trait Validate {
-    fn validate_jwt(&self, token: String) -> bool;
+    fn validate_jwt(&self, token: String) -> Result<Option<Claims>, Error>;
     fn validate_password(&self, plain_password: String, hashed_password: String) -> bool;
 }
 
@@ -73,14 +73,14 @@ impl Decode for Crypto {
 }
 
 impl Validate for Crypto {
-    fn validate_jwt(&self, token: String) -> bool {
-        let _date = Utc::now() + Duration::hours(3);
+    fn validate_jwt(&self, token: String) -> Result<Option<Claims>, Error> {
+        let _date = Utc::now();
         let current_exp = _date.timestamp() as usize;
-        let claims = self.decode_jwt(token).unwrap();
+        let claims = self.decode_jwt(token)?;
         if claims.exp > current_exp {
-            return true;
+            return Ok(Some(claims));
         }
-        return false;
+        return Ok(None);
     }
 
     fn validate_password(&self, plain_password: String, hashed_password: String) -> bool {

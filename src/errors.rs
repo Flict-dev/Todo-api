@@ -50,9 +50,9 @@ impl AppError {
         }
     }
 
-    pub fn unauthorized() -> AppError {
+    pub fn unauthorized(error: &str) -> AppError {
         AppError {
-            message: Some("User unauthorized".to_string()),
+            message: Some(error.to_string()),
             cause: None,
             error_type: AppErrorType::NotFoundError,
         }
