@@ -54,7 +54,7 @@ impl AppError {
         AppError {
             message: Some(error.to_string()),
             cause: None,
-            error_type: AppErrorType::NotFoundError,
+            error_type: AppErrorType::Unauthorized,
         }
     }
 }
