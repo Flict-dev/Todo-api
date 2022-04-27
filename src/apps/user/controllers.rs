@@ -2,12 +2,14 @@ use crate::apps::new_user::{SchemaNewUser, SchemaUser};
 use crate::apps::u_logic;
 use crate::apps::u_schema::response::UserResponse;
 
+use crate::middlewares::User;
+
 use super::crypto::{Encode, Validate};
 use crate::errors::AppError;
 use crate::utils::*;
 use crate::AppState;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
-use slog::o;
+use slog::{info, o};
 
 #[post("/users/login")]
 pub async fn login(
@@ -78,4 +80,11 @@ pub async fn information(
         }
         None => Err(AppError::unauthorized("There is no authorization header")),
     }
+}
+
+#[get("/users/test")]
+pub async fn test(state: web::Data<AppState>, user: User) -> Result<impl Responder, AppError> {
+    let log = state.logger.new(o!("handler" => "test middleware"));
+    info!(log, "Test user - {} !!", user.user_id);
+    Ok(HttpResponse::Ok())
 }

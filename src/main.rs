@@ -4,7 +4,8 @@ extern crate diesel;
 mod apps;
 mod config;
 mod errors;
-pub mod schema;
+mod middlewares;
+mod schema;
 mod utils;
 
 use crate::apps::user::crypto::Crypto;
@@ -56,7 +57,8 @@ async fn main() -> io::Result<()> {
                     .service(check_todo_item)
                     .service(login)
                     .service(register)
-                    .service(information),
+                    .service(information)
+                    .service(test),
             )
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
