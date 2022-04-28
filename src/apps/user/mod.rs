@@ -6,4 +6,3 @@ pub mod tests;
 pub mod crypto;
 
 pub use schema::new_user;
-pub use schema::response;

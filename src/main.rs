@@ -57,8 +57,7 @@ async fn main() -> io::Result<()> {
                     .service(check_todo_item)
                     .service(login)
                     .service(register)
-                    .service(information)
-                    .service(test),
+                    .service(information),
             )
     })
     .bind(format!("{}:{}", config.server.host, config.server.port))?
