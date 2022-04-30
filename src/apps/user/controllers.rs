@@ -14,29 +14,21 @@ pub async fn login(
     state: web::Data<AppState>,
     data: web::Json<SchemaUser>,
 ) -> Result<HttpResponse, AppError> {
-    // let log = state.logger.new(o!("handler" => "user login"));
+    let log = state.logger.new(o!("handler" => "user login"));
 
-    let conn = get_db_conn(&state.pool, &state.logger)?;
+    let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
 
-    let user = u_logic::get_user_by_name(&conn, &data.name);
-    match user {
-        Ok(user) => {
-            if state
-                .crypto
-                .validate_password(data.plain_password.clone(), user.password.clone())
-            {
-                let token = state.crypto.encode_jwt(user.id).unwrap();
-                Ok(HttpResponse::Ok()
-                    .insert_header(("Authorization", format!("Bearer {}", token)))
-                    .json(user))
-            } else {
-                Err(AppError::unauthorized("Invalid password or name"))
-            }
-        }
-        _ => Err(AppError::unauthorized("User does not exist")),
-    }
+    let user = u_logic::get_user_by_name(&conn, &data.name).map_err(AppError::db_not_found)?;
+    state
+        .crypto
+        .validate_password(data.plain_password.clone(), user.password.clone())
+        .map_err(AppError::unauthorized)?;
+
+    let token = state.crypto.encode_jwt(user.id).unwrap();
+    Ok(HttpResponse::Ok()
+        .insert_header(("Authorization", format!("Bearer {}", token)))
+        .json(user))
 }
-
 #[post("/users/register")]
 pub async fn register(
     state: web::Data<AppState>,
@@ -44,14 +36,14 @@ pub async fn register(
 ) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "user register"));
 
-    let conn = get_db_conn(&state.pool, &state.logger)?;
+    let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
 
     let hash = state.crypto.hash_password(data.password.clone());
 
     let user =
-        u_logic::create_user(&conn, &data.name, &hash, &data.email).map_err(log_error(log))?;
+        u_logic::create_user(&conn, &data.name, &hash, &data.email).map_err(AppError::db_unique)?;
 
-    let token = state.crypto.encode_jwt(user.id).unwrap(); // create error handler!
+    let token = state.crypto.encode_jwt(user.id).unwrap();
 
     Ok(HttpResponse::Ok()
         .insert_header(("Authorization", format!("Bearer {}", token)))
@@ -65,8 +57,8 @@ pub async fn information(
 ) -> Result<impl Responder, AppError> {
     let log = state.logger.new(o!("handler" => "user information"));
 
-    let conn = get_db_conn(&state.pool, &state.logger)?;
+    let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
 
-    let user = u_logic::get_user_by_id(&conn, user.user_id).map_err(log_error(log))?;
+    let user = u_logic::get_user_by_id(&conn, user.user_id).map_err(AppError::db_not_found)?;
     Ok(HttpResponse::Ok().json(user))
 }

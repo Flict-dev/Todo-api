@@ -8,7 +8,7 @@ pub fn get_db_conn(poll: &DbPool, logger: &Logger) -> Result<Connection, AppErro
     poll.get().map_err(|err| {
         let sublog = log.new(o!("cause" => err.to_string()));
         crit!(sublog, "Error with connection to database");
-        AppError::db_error(err.to_string())
+        AppError::db_not_found(err.to_string())
     })
 }
 

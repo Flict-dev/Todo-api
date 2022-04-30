@@ -29,7 +29,11 @@ pub trait Decode {
 
 pub trait Validate {
     fn validate_jwt(&self, token: String) -> Result<Option<Claims>, Error>;
-    fn validate_password(&self, plain_password: String, hashed_password: String) -> bool;
+    fn validate_password(
+        &self,
+        plain_password: String,
+        hashed_password: String,
+    ) -> Result<(), &str>;
 }
 
 #[derive(Clone)]
@@ -83,11 +87,16 @@ impl Validate for Crypto {
         return Ok(None);
     }
 
-    fn validate_password(&self, plain_password: String, hashed_password: String) -> bool {
+    fn validate_password(
+        &self,
+        plain_password: String,
+        hashed_password: String,
+    ) -> Result<(), &str> {
         let hash = &self.hash_password(plain_password);
         if *hash == hashed_password {
-            return true;
+            Ok(())
+        } else {
+            Err("Invalid password or name")
         }
-        return false;
     }
 }

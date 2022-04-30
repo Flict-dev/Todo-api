@@ -30,7 +30,7 @@ impl FromRequest for User {
                     Err(_) => err(AppError::unauthorized("Invalid token")),
                 }
             }
-            None => err(AppError::unauthorized("There is no authorization header")),
+            None => err(AppError::forbiden("There is no authorization header")),
         }
     }
 }

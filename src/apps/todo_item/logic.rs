@@ -9,7 +9,7 @@ pub fn get_items(conn: &Connection, ti_list_id: i32) -> Result<Vec<TodoItem>, Ap
         .filter(list_id.eq(ti_list_id))
         .limit(10)
         .load::<TodoItem>(conn)
-        .map_err(AppError::db_error)?;
+        .map_err(AppError::db_not_found)?;
 
     Ok(todo_items)
 }
@@ -27,7 +27,7 @@ pub fn create_item<'a>(
     let new_todo_item = diesel::insert_into(todo_item)
         .values(&new_todo_item)
         .get_result(conn)
-        .map_err(AppError::db_error)?;
+        .map_err(AppError::db_not_found)?;
 
     Ok(new_todo_item)
 }
@@ -42,7 +42,7 @@ pub fn check_todo_item(conn: &Connection, ti_id: i32, ti_list_id: i32) -> Result
     )
     .set(checked.eq(true))
     .get_result::<TodoItem>(conn)
-    .map_err(AppError::db_error)?;
+    .map_err(AppError::db_not_found)?;
 
     match up_todo_item {
         ref updated if updated.checked => Ok(true),

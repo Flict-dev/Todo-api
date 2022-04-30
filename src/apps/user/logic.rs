@@ -8,7 +8,7 @@ pub fn get_user_by_name(conn: &Connection, user_name: &str) -> Result<User, AppE
     let user = users
         .filter(name.eq(user_name))
         .get_result::<User>(conn)
-        .map_err(AppError::db_error)?;
+        .map_err(AppError::db_not_found)?;
 
     Ok(user)
 }
@@ -17,7 +17,7 @@ pub fn get_user_by_id(conn: &Connection, user_id: i32) -> Result<User, AppError>
     let user = users
         .find(user_id)
         .get_result::<User>(conn)
-        .map_err(AppError::db_error)?;
+        .map_err(AppError::db_not_found)?;
 
     Ok(user)
 }
@@ -38,7 +38,6 @@ pub fn create_user<'a>(
     let new_user = diesel::insert_into(users)
         .values(&new_user)
         .get_result(conn)
-        .map_err(AppError::db_error)?;
-
+        .map_err(AppError::db_not_found)?;
     Ok(new_user)
 }
