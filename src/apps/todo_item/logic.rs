@@ -6,7 +6,7 @@ use diesel::prelude::*;
 
 pub fn get_items(conn: &Connection, ti_list_id: i32) -> Result<Vec<TodoItem>, AppError> {
     let todo_items = todo_item
-        .filter(list_id.eq(ti_list_id))
+        .filter(list_id.eq(ti_list_id).and(checked.eq(false)))
         .limit(10)
         .load::<TodoItem>(conn)
         .map_err(AppError::db_not_found)?;

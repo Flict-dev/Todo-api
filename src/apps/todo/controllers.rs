@@ -1,6 +1,7 @@
 use crate::apps::new_todo::{SchemaTodo, Status};
 use crate::apps::td_logic;
 use crate::apps::td_models::TodoList;
+use crate::middlewares::User;
 
 use crate::errors::AppError;
 use crate::utils::*;
@@ -16,12 +17,12 @@ pub async fn status() -> impl Responder {
 }
 
 #[get("/todos{_:/?}")]
-pub async fn get_todos(state: web::Data<AppState>) -> Result<impl Responder, AppError> {
+pub async fn get_todos(state: web::Data<AppState>, user: User) -> Result<impl Responder, AppError> {
     let log = state.logger.new(o!("handler" => "get_todos"));
 
     let conn = get_db_conn(&state.pool, &state.logger)?;
 
-    let result: Result<Vec<TodoList>, AppError> = td_logic::get_todos(&conn);
+    let result: Result<Vec<TodoList>, AppError> = td_logic::get_todos(&conn, user.user_id);
 
     result
         .map(|todos| HttpResponse::Ok().json(todos))
@@ -32,12 +33,14 @@ pub async fn get_todos(state: web::Data<AppState>) -> Result<impl Responder, App
 pub async fn create_todo(
     state: web::Data<AppState>,
     list: web::Json<SchemaTodo>,
+    user: User,
 ) -> Result<impl Responder, AppError> {
     let log = state.logger.new(o!("handler" => "create_list"));
 
     let conn = get_db_conn(&state.pool, &state.logger)?;
 
-    let result: Result<TodoList, AppError> = td_logic::create_todo(&conn, &list.title);
+    let result: Result<TodoList, AppError> =
+        td_logic::create_todo(&conn, &list.title, user.user_id);
 
     result
         .map(|list| HttpResponse::Ok().json(list))

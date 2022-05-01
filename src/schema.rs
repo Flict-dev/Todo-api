@@ -11,6 +11,7 @@ table! {
     todo_list (id) {
         id -> Int4,
         title -> Varchar,
+        user_id -> Int4,
     }
 }
 

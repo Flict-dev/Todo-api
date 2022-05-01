@@ -6,10 +6,12 @@ use serde::{Deserialize, Serialize};
 pub struct TodoList {
     pub id: i32,
     pub title: String,
+    pub user_id: i32,
 }
 
 #[derive(Insertable, Deserialize, Serialize)]
 #[table_name = "todo_list"]
 pub struct NewTodo<'a> {
     pub title: &'a str,
+    pub user_id: i32,
 }
