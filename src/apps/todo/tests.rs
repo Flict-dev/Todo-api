@@ -3,6 +3,7 @@ mod todo_tests {
 
     use crate::apps::td_controllers;
     use crate::apps::td_models::TodoList;
+    use crate::apps::u_controllers;
 
     use crate::config::ToDoConfig;
     use crate::AppState;
@@ -25,11 +26,39 @@ mod todo_tests {
         let app = test::init_service(
             App::new()
                 .app_data(Data::new(APP_STATE.clone()))
-                .service(td_controllers::get_todos),
+                .service(td_controllers::get_todos)
+                .service(u_controllers::register),
         )
         .await;
 
-        let req = test::TestRequest::get().uri("/todos").to_request();
+        let content = json!({"name": "Test1 User", "password": "test", "email": "test1@gmail.com"});
+
+        let req = test::TestRequest::post()
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/users/register")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating user doesn't successful"
+        );
+
+        let token = res
+            .headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(" ")
+            .collect::<Vec<&str>>()[1];
+
+        let req = test::TestRequest::get()
+            .uri("/todos")
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .to_request();
 
         let res = test::call_service(&app, req).await;
 
@@ -42,13 +71,40 @@ mod todo_tests {
             App::new()
                 .app_data(Data::new(APP_STATE.clone()))
                 .service(td_controllers::get_todos)
-                .service(td_controllers::create_todo),
+                .service(td_controllers::create_todo)
+                .service(u_controllers::register),
         )
         .await;
 
+        let content = json!({"name": "Test2 User", "password": "test", "email": "test2@gmail.com"});
+
+        let req = test::TestRequest::post()
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/users/register")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating user doesn't successful"
+        );
+
+        let token = res
+            .headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(" ")
+            .collect::<Vec<&str>>()[1];
+
+        println!("{}", token);
         let content = json!({"title": "Test todo"});
 
         let req = test::TestRequest::post()
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
             .uri("/todos")
@@ -71,7 +127,10 @@ mod todo_tests {
 
         let created_list = try_created.unwrap();
 
-        let req = test::TestRequest::get().uri("/todos").to_request();
+        let req = test::TestRequest::get()
+            .uri("/todos")
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .to_request();
         let res = test::call_service(&app, req).await;
 
         let todos: Vec<TodoList> = test::read_body_json(res).await;

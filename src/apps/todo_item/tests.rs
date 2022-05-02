@@ -4,6 +4,7 @@ mod todo_item_tests {
     use crate::apps::td_models::TodoList;
     use crate::apps::ti_controllers;
     use crate::apps::ti_models::TodoItem;
+    use crate::apps::u_controllers;
 
     use crate::config::ToDoConfig;
     use crate::AppState;
@@ -28,14 +29,40 @@ mod todo_item_tests {
             App::new()
                 .app_data(Data::new(APP_STATE.clone()))
                 .service(ti_controllers::get_items)
-                .service(td_controllers::create_todo),
+                .service(td_controllers::create_todo)
+                .service(u_controllers::register),
         )
         .await;
+
+        let content = json!({"name": "Test3 User", "password": "test", "email": "test3@gmail.com"});
+
+        let req = test::TestRequest::post()
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/users/register")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating user doesn't successful"
+        );
+
+        let token = res
+            .headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(" ")
+            .collect::<Vec<&str>>()[1];
 
         let content = json!({"title": "Test todo"});
 
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .set_payload(content.to_string())
             .uri("/todos")
             .to_request();
@@ -59,6 +86,7 @@ mod todo_item_tests {
 
         let req = test::TestRequest::get()
             .uri(&format!("/todos/{}/items", created_list.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -76,14 +104,40 @@ mod todo_item_tests {
                 .app_data(Data::new(APP_STATE.clone()))
                 .service(ti_controllers::get_items)
                 .service(td_controllers::create_todo)
-                .service(ti_controllers::create_item),
+                .service(ti_controllers::create_item)
+                .service(u_controllers::register),
         )
         .await;
+
+        let content = json!({"name": "Test4 User", "password": "test", "email": "test4@gmail.com"});
+
+        let req = test::TestRequest::post()
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/users/register")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating user doesn't successful"
+        );
+
+        let token = res
+            .headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(" ")
+            .collect::<Vec<&str>>()[1];
 
         let content = json!({"title": "Test todo"});
 
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .set_payload(content.to_string())
             .uri("/todos")
             .to_request();
@@ -109,6 +163,7 @@ mod todo_item_tests {
 
         let req = test::TestRequest::post()
             .uri(&format!("/todos/{}/items", created_list.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
             .set_payload(item.to_string())
             .to_request();
@@ -130,6 +185,7 @@ mod todo_item_tests {
 
         let req = test::TestRequest::get()
             .uri(&format!("/todos/{}/items", created_list.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -152,6 +208,7 @@ mod todo_item_tests {
             "Db of creating todo item doesn't successful"
         )
     }
+
     #[actix_web::test]
     async fn update_item() {
         let app = test::init_service(
@@ -160,13 +217,39 @@ mod todo_item_tests {
                 .service(ti_controllers::get_items)
                 .service(td_controllers::create_todo)
                 .service(ti_controllers::create_item)
-                .service(ti_controllers::check_todo_item),
+                .service(ti_controllers::check_todo_item)
+                .service(u_controllers::register),
         )
         .await;
+
+        let content = json!({"name": "Test5 User", "password": "test", "email": "test5@gmail.com"});
+
+        let req = test::TestRequest::post()
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/users/register")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating user doesn't successful"
+        );
+
+        let token = res
+            .headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(" ")
+            .collect::<Vec<&str>>()[1];
 
         let content = json!({"title": "Test todo"});
 
         let req = test::TestRequest::post()
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
             .uri("/todos")
@@ -193,6 +276,7 @@ mod todo_item_tests {
 
         let req = test::TestRequest::post()
             .uri(&format!("/todos/{}/items", created_list.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
             .set_payload(item.to_string())
             .to_request();
@@ -214,6 +298,7 @@ mod todo_item_tests {
 
         let req = test::TestRequest::get()
             .uri(&format!("/todos/{}/items", created_list.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -239,6 +324,7 @@ mod todo_item_tests {
 
         let req = test::TestRequest::put()
             .uri(&format!("/todos/{}/items", created_list.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
             .to_request();
