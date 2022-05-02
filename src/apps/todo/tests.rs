@@ -100,7 +100,6 @@ mod todo_tests {
             .split(" ")
             .collect::<Vec<&str>>()[1];
 
-        println!("{}", token);
         let content = json!({"title": "Test todo"});
 
         let req = test::TestRequest::post()
