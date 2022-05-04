@@ -7,7 +7,7 @@
 Use the virtual variable RUST_LOG for logging
 ```
 # Copy example .env file
-cp .env.example .env
+cp ./config/.env.example .env
 
 # Run postgres
 docker-compose up -d postgres
