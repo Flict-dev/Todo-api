@@ -1,7 +1,7 @@
 # To Do API
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Flict-dev/Todo-api/Tests?label=build)
-![License](https://img.shields.io/github/license/Flict-dev/Todo-api)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Flict-dev/Todo-api/Tests?label=build) ![License](https://img.shields.io/github/license/Flict-dev/Todo-api)
+
 
 ## Uasge:zap:
 Use the virtual variable RUST_LOG for logging
