@@ -5,7 +5,7 @@ mod user_tests {
 
     use crate::config::ToDoConfig;
     use crate::AppState;
-    use actix_web::{http::header::ContentType, test, web::Data, App};
+    use actix_web::{http::header::ContentType, test, web, web::Data, App};
     use lazy_static::lazy_static;
     use serde_json::json;
 
@@ -21,11 +21,12 @@ mod user_tests {
     #[actix_web::test]
     async fn user_work() {
         let app = test::init_service(
-            App::new()
-                .app_data(Data::new(APP_STATE.clone()))
-                .service(u_controllers::register)
-                .service(u_controllers::information)
-                .service(u_controllers::login),
+            App::new().app_data(Data::new(APP_STATE.clone())).service(
+                web::scope("/user")
+                    .service(u_controllers::register)
+                    .service(u_controllers::information)
+                    .service(u_controllers::login),
+            ),
         )
         .await;
 
@@ -34,7 +35,7 @@ mod user_tests {
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
-            .uri("/users/register")
+            .uri("/user/register")
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -55,7 +56,7 @@ mod user_tests {
 
         let req = test::TestRequest::get()
             .insert_header(("Authorization", format!("Bearer {}", token)))
-            .uri("/users/information")
+            .uri("/user/information")
             .to_request();
         let res = test::call_service(&app, req).await;
 
@@ -72,7 +73,7 @@ mod user_tests {
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
             .set_payload(login_content.to_string())
-            .uri("/users/login")
+            .uri("/user/login")
             .to_request();
 
         let res = test::call_service(&app, req).await;

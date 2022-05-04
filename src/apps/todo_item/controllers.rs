@@ -5,15 +5,20 @@ use crate::middlewares::User;
 
 use crate::utils::*;
 use crate::AppState;
-use actix_web::{get, post, put, web, HttpResponse, Responder};
+use actix_web::HttpResponse;
+use paperclip::actix::{
+    api_v2_operation, get, post, put,
+    web::{self, ServiceConfig},
+};
 use slog::o;
 
-#[get("/todos/{list_id}/items{_:/?}")]
-pub async fn get_items(
+#[api_v2_operation]
+#[get("/{list_id}/items")]
+pub async fn get_item(
     state: web::Data<AppState>,
     path: web::Path<(i32,)>,
     _user: User,
-) -> Result<impl Responder, AppError> {
+) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "get_items"));
 
     let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
@@ -25,13 +30,14 @@ pub async fn get_items(
         .map_err(AppError::db_not_found)
 }
 
-#[post("/todos/{list_id}/items{_:/?}")]
+#[api_v2_operation]
+#[post("/{list_id}/items")]
 pub async fn create_item(
     state: web::Data<AppState>,
     path: web::Path<(i32,)>,
     data: web::Json<SchemaTodoItem>,
     _user: User,
-) -> Result<impl Responder, AppError> {
+) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "create_item"));
 
     let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
@@ -43,13 +49,14 @@ pub async fn create_item(
         .map_err(AppError::db_not_found)
 }
 
-#[put("/todos/{list_id}/items{_:/?}")]
+#[api_v2_operation]
+#[put("/{list_id}/items")]
 pub async fn check_todo_item(
     state: web::Data<AppState>,
     path: web::Path<(i32,)>,
     data: web::Json<TodoItem>,
     _user: User,
-) -> Result<impl Responder, AppError> {
+) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "check_todo"));
 
     let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
@@ -59,4 +66,10 @@ pub async fn check_todo_item(
     result
         .map(|res| HttpResponse::Ok().json(ResultResponse { success: res }))
         .map_err(AppError::db_not_found)
+}
+
+pub fn init_routes(cfg: &mut ServiceConfig) {
+    cfg.service(get_item);
+    cfg.service(create_item);
+    cfg.service(check_todo_item);
 }

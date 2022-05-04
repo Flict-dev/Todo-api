@@ -9,7 +9,7 @@ mod todo_item_tests {
     use crate::config::ToDoConfig;
     use crate::AppState;
     use actix_web::web::Data;
-    use actix_web::{http::header::ContentType, test, App};
+    use actix_web::{http::header::ContentType, test, web, App};
 
     use lazy_static::lazy_static;
     use serde_json::json;
@@ -28,9 +28,12 @@ mod todo_item_tests {
         let app = test::init_service(
             App::new()
                 .app_data(Data::new(APP_STATE.clone()))
-                .service(ti_controllers::get_items)
-                .service(td_controllers::create_todo)
-                .service(u_controllers::register),
+                .service(web::scope("/user").service(u_controllers::register))
+                .service(
+                    web::scope("/todos")
+                        .service(ti_controllers::get_item)
+                        .service(td_controllers::create_todo),
+                ),
         )
         .await;
 
@@ -39,7 +42,7 @@ mod todo_item_tests {
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
-            .uri("/users/register")
+            .uri("/user/register")
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -64,7 +67,7 @@ mod todo_item_tests {
             .insert_header(ContentType::json())
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .set_payload(content.to_string())
-            .uri("/todos")
+            .uri("/todos/")
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -102,10 +105,13 @@ mod todo_item_tests {
         let app = test::init_service(
             App::new()
                 .app_data(Data::new(APP_STATE.clone()))
-                .service(ti_controllers::get_items)
-                .service(td_controllers::create_todo)
-                .service(ti_controllers::create_item)
-                .service(u_controllers::register),
+                .service(web::scope("/user").service(u_controllers::register))
+                .service(
+                    web::scope("/todos")
+                        .service(ti_controllers::get_item)
+                        .service(td_controllers::create_todo)
+                        .service(ti_controllers::create_item),
+                ),
         )
         .await;
 
@@ -114,7 +120,7 @@ mod todo_item_tests {
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
-            .uri("/users/register")
+            .uri("/user/register")
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -139,7 +145,7 @@ mod todo_item_tests {
             .insert_header(ContentType::json())
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .set_payload(content.to_string())
-            .uri("/todos")
+            .uri("/todos/")
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -214,11 +220,14 @@ mod todo_item_tests {
         let app = test::init_service(
             App::new()
                 .app_data(Data::new(APP_STATE.clone()))
-                .service(ti_controllers::get_items)
-                .service(td_controllers::create_todo)
-                .service(ti_controllers::create_item)
-                .service(ti_controllers::check_todo_item)
-                .service(u_controllers::register),
+                .service(web::scope("/user").service(u_controllers::register))
+                .service(
+                    web::scope("/todos")
+                        .service(ti_controllers::get_item)
+                        .service(td_controllers::create_todo)
+                        .service(ti_controllers::create_item)
+                        .service(ti_controllers::check_todo_item),
+                ),
         )
         .await;
 
@@ -227,7 +236,7 @@ mod todo_item_tests {
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
-            .uri("/users/register")
+            .uri("/user/register")
             .to_request();
 
         let res = test::call_service(&app, req).await;
@@ -252,7 +261,7 @@ mod todo_item_tests {
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
             .set_payload(content.to_string())
-            .uri("/todos")
+            .uri("/todos/")
             .to_request();
 
         let res = test::call_service(&app, req).await;

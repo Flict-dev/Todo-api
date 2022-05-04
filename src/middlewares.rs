@@ -2,7 +2,9 @@ use crate::apps::user::crypto::Validate;
 use crate::{errors::AppError, AppState};
 use actix_web::{dev, web::Data, FromRequest, HttpRequest};
 use futures::future::{err, ok, Ready};
+use paperclip::actix::Apiv2Schema;
 
+#[derive(Apiv2Schema)]
 pub struct User {
     pub user_id: i32,
 }

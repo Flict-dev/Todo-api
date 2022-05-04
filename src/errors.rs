@@ -1,4 +1,5 @@
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
+use paperclip::actix::api_v2_errors;
 use serde::Serialize;
 use std::fmt;
 
@@ -13,6 +14,7 @@ pub enum AppErrorType {
     Forbidden,
 }
 
+#[api_v2_errors]
 #[derive(Debug)]
 pub struct AppError {
     pub message: Option<String>,

@@ -1,11 +1,7 @@
+use paperclip::actix::Apiv2Schema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-pub struct Status {
-    pub status: String,
-}
-
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Apiv2Schema)]
 pub struct SchemaTodo {
     pub title: String,
 }

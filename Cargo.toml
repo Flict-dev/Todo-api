@@ -9,6 +9,7 @@ edition = "2021"
 actix-web = "4"
 serde = { version = "1.0.136", features = ["derive"] }
 diesel = { version = "1.4.8", features = ["postgres", "r2d2"] }
+paperclip = { version = "0.7", features = ["actix4"] }
 r2d2 = "0.8.9"
 dotenv = "0.15.0"
 config = "0.13.0"

@@ -1,4 +1,4 @@
-use crate::apps::new_todo::{SchemaTodo, Status};
+use crate::apps::new_todo::SchemaTodo;
 use crate::apps::td_logic;
 use crate::apps::td_models::TodoList;
 use crate::middlewares::User;
@@ -6,18 +6,16 @@ use crate::middlewares::User;
 use crate::errors::AppError;
 use crate::utils::*;
 use crate::AppState;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::HttpResponse;
+use paperclip::actix::{
+    api_v2_operation, get, post,
+    web::{self, ServiceConfig},
+};
 use slog::o;
 
+#[api_v2_operation]
 #[get("/")]
-pub async fn status() -> impl Responder {
-    HttpResponse::Ok().json(Status {
-        status: String::from("Ok"),
-    })
-}
-
-#[get("/todos{_:/?}")]
-pub async fn get_todos(state: web::Data<AppState>, user: User) -> Result<impl Responder, AppError> {
+pub async fn get_todo(state: web::Data<AppState>, user: User) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "get_todos"));
 
     let conn = get_db_conn(&state.pool, &state.logger)?;
@@ -29,12 +27,13 @@ pub async fn get_todos(state: web::Data<AppState>, user: User) -> Result<impl Re
         .map_err(log_error(log))
 }
 
-#[post("/todos{_:/?}")]
+#[api_v2_operation]
+#[post("/")]
 pub async fn create_todo(
     state: web::Data<AppState>,
     list: web::Json<SchemaTodo>,
     user: User,
-) -> Result<impl Responder, AppError> {
+) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "create_list"));
 
     let conn = get_db_conn(&state.pool, &state.logger)?;
@@ -45,4 +44,9 @@ pub async fn create_todo(
     result
         .map(|list| HttpResponse::Ok().json(list))
         .map_err(log_error(log))
+}
+
+pub fn init_routes(cfg: &mut ServiceConfig) {
+    cfg.service(get_todo);
+    cfg.service(create_todo);
 }

@@ -6,10 +6,15 @@ use super::crypto::{Encode, Validate};
 use crate::errors::AppError;
 use crate::utils::*;
 use crate::AppState;
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::HttpResponse;
+use paperclip::actix::{
+    api_v2_operation, get, post,
+    web::{self, ServiceConfig},
+};
 use slog::o;
 
-#[post("/users/login")]
+#[api_v2_operation]
+#[post("/login")]
 pub async fn login(
     state: web::Data<AppState>,
     data: web::Json<SchemaUser>,
@@ -29,7 +34,9 @@ pub async fn login(
         .insert_header(("Authorization", format!("Bearer {}", token)))
         .json(user))
 }
-#[post("/users/register")]
+
+#[api_v2_operation]
+#[post("/register")]
 pub async fn register(
     state: web::Data<AppState>,
     data: web::Json<SchemaNewUser>,
@@ -50,15 +57,19 @@ pub async fn register(
         .json(user))
 }
 
-#[get("/users/information")]
-pub async fn information(
-    state: web::Data<AppState>,
-    user: User,
-) -> Result<impl Responder, AppError> {
+#[api_v2_operation]
+#[get("/information")]
+pub async fn information(state: web::Data<AppState>, user: User) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "user information"));
 
     let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
 
     let user = u_logic::get_user_by_id(&conn, user.user_id).map_err(AppError::db_not_found)?;
     Ok(HttpResponse::Ok().json(user))
+}
+
+pub fn init_routes(cfg: &mut ServiceConfig) {
+    cfg.service(login);
+    cfg.service(register);
+    cfg.service(information);
 }
