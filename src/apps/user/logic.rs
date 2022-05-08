@@ -41,3 +41,9 @@ pub fn create_user<'a>(
         .map_err(AppError::db_not_found)?;
     Ok(new_user)
 }
+
+pub fn delete_user(conn: &Connection, user_id: i32) -> Result<usize, AppError> {
+    diesel::delete(users.filter(id.eq(user_id)))
+        .execute(conn)
+        .map_err(AppError::db_not_found)
+}

@@ -8,7 +8,7 @@ use crate::utils::*;
 use crate::AppState;
 use actix_web::HttpResponse;
 use paperclip::actix::{
-    api_v2_operation, get, post,
+    api_v2_operation, delete, get, post,
     web::{self, ServiceConfig},
 };
 use slog::o;
@@ -68,8 +68,20 @@ pub async fn information(state: web::Data<AppState>, user: User) -> Result<HttpR
     Ok(HttpResponse::Ok().json(user))
 }
 
+#[api_v2_operation]
+#[delete("/information")]
+pub async fn delete(state: web::Data<AppState>, user: User) -> Result<HttpResponse, AppError> {
+    let log = state.logger.new(o!("handler" => "user information"));
+
+    let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
+
+    let user = u_logic::delete_user(&conn, user.user_id).map_err(AppError::db_not_found)?;
+    Ok(HttpResponse::Ok().json(user))
+}
+
 pub fn init_routes(cfg: &mut ServiceConfig) {
     cfg.service(login);
     cfg.service(register);
     cfg.service(information);
+    cfg.service(delete);
 }

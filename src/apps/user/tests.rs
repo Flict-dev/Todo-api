@@ -25,7 +25,8 @@ mod user_tests {
                 web::scope("/user")
                     .service(u_controllers::register)
                     .service(u_controllers::information)
-                    .service(u_controllers::login),
+                    .service(u_controllers::login)
+                    .service(u_controllers::delete),
             ),
         )
         .await;
@@ -88,5 +89,15 @@ mod user_tests {
         let serv_user = serv_user.unwrap();
 
         assert_eq!(serv_user.name, "Test User", "User doesn't match");
+
+        let req = test::TestRequest::delete()
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .insert_header(ContentType::json())
+            .uri("/user/information")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(res.status().is_success());
     }
 }
