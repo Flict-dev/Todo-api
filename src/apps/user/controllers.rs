@@ -58,7 +58,7 @@ pub async fn register(
 }
 
 #[api_v2_operation]
-#[get("/information")]
+#[get("/info")]
 pub async fn information(state: web::Data<AppState>, user: User) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "user information"));
 
@@ -69,7 +69,7 @@ pub async fn information(state: web::Data<AppState>, user: User) -> Result<HttpR
 }
 
 #[api_v2_operation]
-#[delete("/information")]
+#[delete("/info")]
 pub async fn delete(state: web::Data<AppState>, user: User) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "user information"));
 

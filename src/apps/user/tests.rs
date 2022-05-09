@@ -57,7 +57,7 @@ mod user_tests {
 
         let req = test::TestRequest::get()
             .insert_header(("Authorization", format!("Bearer {}", token)))
-            .uri("/user/information")
+            .uri("/user/info")
             .to_request();
         let res = test::call_service(&app, req).await;
 
@@ -93,7 +93,7 @@ mod user_tests {
         let req = test::TestRequest::delete()
             .insert_header(("Authorization", format!("Bearer {}", token)))
             .insert_header(ContentType::json())
-            .uri("/user/information")
+            .uri("/user/info")
             .to_request();
 
         let res = test::call_service(&app, req).await;
