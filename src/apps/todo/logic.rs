@@ -33,3 +33,10 @@ pub fn create_todo<'a>(
 
     Ok(new_todo)
 }
+
+pub fn delete_todo<'a>(conn: &Connection, todo_id: i32) -> Result<usize, AppError> {
+    diesel::delete(todo_list)
+        .filter(id.eq(todo_id))
+        .execute(conn)
+        .map_err(AppError::db_not_found)
+}

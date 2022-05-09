@@ -49,3 +49,10 @@ pub fn check_todo_item(conn: &Connection, ti_id: i32, ti_list_id: i32) -> Result
         _ => Ok(false),
     }
 }
+
+pub fn delete_item(conn: &Connection, ti_id: i32, ti_list_id: i32) -> Result<usize, AppError> {
+    diesel::delete(todo_item)
+        .filter(id.eq(ti_id).and(list_id.eq(ti_list_id)))
+        .execute(conn)
+        .map_err(AppError::db_not_found)
+}

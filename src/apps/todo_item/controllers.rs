@@ -7,7 +7,7 @@ use crate::utils::*;
 use crate::AppState;
 use actix_web::HttpResponse;
 use paperclip::actix::{
-    api_v2_operation, get, post, put,
+    api_v2_operation, delete, get, post, put,
     web::{self, ServiceConfig},
 };
 use slog::o;
@@ -68,8 +68,25 @@ pub async fn check_todo_item(
         .map_err(AppError::db_not_found)
 }
 
+#[api_v2_operation]
+#[delete("/{list_id}/items")]
+pub async fn delete_item(
+    state: web::Data<AppState>,
+    path: web::Path<(i32,)>,
+    data: web::Json<TodoItem>,
+    _user: User,
+) -> Result<HttpResponse, AppError> {
+    let log = state.logger.new(o!("handler" => "delete item"));
+
+    let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
+
+    let result = ti_logic::delete_item(&conn, data.id, path.0).map_err(AppError::db_not_found)?;
+    Ok(HttpResponse::Ok().json(result))
+}
+
 pub fn init_routes(cfg: &mut ServiceConfig) {
     cfg.service(get_item);
     cfg.service(create_item);
     cfg.service(check_todo_item);
+    cfg.service(delete_item);
 }

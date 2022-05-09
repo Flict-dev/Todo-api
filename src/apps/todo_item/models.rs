@@ -1,8 +1,9 @@
 use crate::schema::todo_item;
-use diesel::Queryable;
+use diesel::{Associations, Queryable};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Queryable)]
+#[derive(Serialize, Deserialize, Queryable, Associations)]
+#[diesel(belongs_to(TodoList))]
 pub struct TodoItem {
     pub id: i32,
     pub title: String,

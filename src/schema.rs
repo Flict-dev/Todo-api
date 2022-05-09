@@ -21,12 +21,11 @@ table! {
         name -> Text,
         password -> Text,
         email -> Text,
-        todo_id -> Nullable<Int4>,
     }
 }
 
 joinable!(todo_item -> todo_list (list_id));
-joinable!(users -> todo_list (todo_id));
+joinable!(todo_list -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
     todo_item,

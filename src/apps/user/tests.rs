@@ -98,6 +98,6 @@ mod user_tests {
 
         let res = test::call_service(&app, req).await;
 
-        assert!(res.status().is_success());
+        assert!(res.status().is_success(), "User not deleted");
     }
 }

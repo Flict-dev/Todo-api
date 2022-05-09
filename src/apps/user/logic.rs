@@ -32,7 +32,6 @@ pub fn create_user<'a>(
         name: user_name,
         password: user_password,
         email: user_email,
-        todo_id: None,
     };
 
     let new_user = diesel::insert_into(users)

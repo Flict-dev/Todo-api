@@ -1,4 +1,4 @@
-use crate::apps::new_todo::SchemaTodo;
+use crate::apps::new_todo::{SchemaNewTodo, SchemaTodo};
 use crate::apps::td_logic;
 use crate::apps::td_models::TodoList;
 use crate::middlewares::User;
@@ -8,7 +8,7 @@ use crate::utils::*;
 use crate::AppState;
 use actix_web::HttpResponse;
 use paperclip::actix::{
-    api_v2_operation, get, post,
+    api_v2_operation, delete, get, post,
     web::{self, ServiceConfig},
 };
 use slog::o;
@@ -31,7 +31,7 @@ pub async fn get_todo(state: web::Data<AppState>, user: User) -> Result<HttpResp
 #[post("/")]
 pub async fn create_todo(
     state: web::Data<AppState>,
-    list: web::Json<SchemaTodo>,
+    list: web::Json<SchemaNewTodo>,
     user: User,
 ) -> Result<HttpResponse, AppError> {
     let log = state.logger.new(o!("handler" => "create_list"));
@@ -46,7 +46,24 @@ pub async fn create_todo(
         .map_err(log_error(log))
 }
 
+#[api_v2_operation]
+#[delete("/")]
+pub async fn delete_todo(
+    state: web::Data<AppState>,
+    data: web::Json<SchemaTodo>,
+    _user: User,
+) -> Result<HttpResponse, AppError> {
+    let log = state.logger.new(o!("handler" => "delete todo"));
+
+    let conn = get_db_conn(&state.pool, &state.logger).map_err(log_error(log))?;
+
+    let result = td_logic::delete_todo(&conn, data.todo_id).map_err(AppError::db_not_found)?;
+
+    Ok(HttpResponse::Ok().json(result))
+}
+
 pub fn init_routes(cfg: &mut ServiceConfig) {
     cfg.service(get_todo);
     cfg.service(create_todo);
+    cfg.service(delete_todo);
 }

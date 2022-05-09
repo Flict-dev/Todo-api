@@ -144,4 +144,96 @@ mod todo_tests {
             "Db of creating todo list doesn't successful"
         )
     }
+
+    #[actix_web::test]
+    async fn delete_todo() {
+        let app = test::init_service(
+            App::new()
+                .app_data(Data::new(APP_STATE.clone()))
+                .service(web::scope("/user").service(u_controllers::register))
+                .service(
+                    web::scope("/todos")
+                        .service(td_controllers::get_todo)
+                        .service(td_controllers::create_todo)
+                        .service(td_controllers::delete_todo),
+                ),
+        )
+        .await;
+
+        let content = json!({"name": "Test7 User", "password": "test", "email": "test7@gmail.com"});
+
+        let req = test::TestRequest::post()
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/user/register")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating user doesn't successful"
+        );
+
+        let token = res
+            .headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .split(" ")
+            .collect::<Vec<&str>>()[1];
+
+        let content = json!({"title": "Test todo"});
+
+        let req = test::TestRequest::post()
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/todos/")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+
+        assert!(
+            res.status().is_success(),
+            "Response of creating todo list doesn't successful"
+        );
+
+        let try_created: Result<TodoList, serde_json::Error> =
+            serde_json::from_slice(&test::read_body(res).await);
+
+        assert!(
+            try_created.is_ok(),
+            "Body of creating todo list doesn't successful"
+        );
+
+        let created_list = try_created.unwrap();
+
+        let req = test::TestRequest::get()
+            .uri("/todos/")
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .to_request();
+        let res = test::call_service(&app, req).await;
+
+        let todos: Vec<TodoList> = test::read_body_json(res).await;
+
+        let maybe_todo = todos.iter().find(|todo| todo.id == created_list.id);
+
+        assert!(
+            maybe_todo.is_some(),
+            "Db of creating todo list doesn't successful"
+        );
+
+        let content = json!({"todo_id": created_list.id});
+        let req = test::TestRequest::delete()
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .insert_header(ContentType::json())
+            .set_payload(content.to_string())
+            .uri("/todos/")
+            .to_request();
+
+        let res = test::call_service(&app, req).await;
+        assert!(res.status().is_success(), "Todo list not deleted");
+    }
 }
