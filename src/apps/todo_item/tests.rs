@@ -329,7 +329,7 @@ mod todo_item_tests {
             maybe_item.is_some(),
             "Db of creating todo item doesn't successful"
         );
-        let content = json!({"list_id": created_item.list_id, "id": created_item.id});
+        let content = json!({"todo_item_id": created_item.id});
 
         let req = test::TestRequest::put()
             .uri(&format!("/todos/{}/items", created_list.id))
@@ -457,7 +457,7 @@ mod todo_item_tests {
             "Db of creating todo item doesn't successful"
         );
 
-        let item = json!({"id": created_item.id});
+        let item = json!({"todo_item_id": created_item.id});
 
         let req = test::TestRequest::delete()
             .uri(&format!("/todos/{}/items", created_list.id))
