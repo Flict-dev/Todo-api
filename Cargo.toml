@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 actix-web = "4"
 serde = { version = "1.0.136", features = ["derive"] }
-diesel = { version = "1.4.8", features = ["postgres", "r2d2"] }
+diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
 paperclip = { version = "0.7", features = ["actix4"] }
 r2d2 = "0.8.9"
 dotenv = "0.15.0"
@@ -20,7 +20,7 @@ slog-term = "2.7.0"
 slog-async = "2.7.0"
 jsonwebtoken = "8.1.0"
 sha2 = { version = "0.10", default-features = false }
-chrono = "0.4.19"
+chrono = { version = "0.4.19", features = ['serde'] }
 futures = "0.3.21"
 
 [dev-dependencies]

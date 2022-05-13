@@ -2,6 +2,7 @@
 mod todo_tests {
 
     use crate::apps::td_controllers;
+    use crate::apps::td_logic::Todos;
     use crate::apps::td_models::TodoList;
     use crate::apps::u_controllers;
 
@@ -135,9 +136,9 @@ mod todo_tests {
             .to_request();
         let res = test::call_service(&app, req).await;
 
-        let todos: Vec<TodoList> = test::read_body_json(res).await;
+        let todos: Vec<Todos> = test::read_body_json(res).await;
 
-        let maybe_todo = todos.iter().find(|todo| todo.id == created_list.id);
+        let maybe_todo = todos.iter().find(|todo| todo.todo.id == created_list.id);
 
         assert!(
             maybe_todo.is_some(),
@@ -216,9 +217,9 @@ mod todo_tests {
             .to_request();
         let res = test::call_service(&app, req).await;
 
-        let todos: Vec<TodoList> = test::read_body_json(res).await;
+        let todos: Vec<Todos> = test::read_body_json(res).await;
 
-        let maybe_todo = todos.iter().find(|todo| todo.id == created_list.id);
+        let maybe_todo = todos.iter().find(|todo| todo.todo.id == created_list.id);
 
         assert!(
             maybe_todo.is_some(),

@@ -2,12 +2,12 @@ use crate::apps::ti_models::{NewTodoItem, TodoItem};
 use crate::errors::AppError;
 use crate::schema::todo_item::dsl::*;
 use crate::Connection;
+use chrono::Utc;
 use diesel::prelude::*;
 
 pub fn get_items(conn: &Connection, ti_list_id: i32) -> Result<Vec<TodoItem>, AppError> {
     let todo_items = todo_item
-        .filter(list_id.eq(ti_list_id).and(checked.eq(false)))
-        .limit(10)
+        .filter(list_id.eq(ti_list_id))
         .load::<TodoItem>(conn)
         .map_err(AppError::db_not_found)?;
 
@@ -22,6 +22,7 @@ pub fn create_item<'a>(
     let new_todo_item = NewTodoItem {
         list_id: ti_list_id,
         title: ti_title,
+        updated: Utc::now().naive_utc(),
     };
 
     let new_todo_item = diesel::insert_into(todo_item)
@@ -45,7 +46,7 @@ pub fn check_todo_item(conn: &Connection, ti_id: i32, ti_list_id: i32) -> Result
     .map_err(AppError::db_not_found)?;
 
     match up_todo_item {
-        ref updated if updated.checked => Ok(true),
+        ref updated_item if updated_item.checked => Ok(true),
         _ => Ok(false),
     }
 }

@@ -3,6 +3,7 @@ table! {
         id -> Int4,
         title -> Varchar,
         checked -> Bool,
+        updated -> Timestamp,
         list_id -> Int4,
     }
 }
@@ -11,6 +12,7 @@ table! {
     todo_list (id) {
         id -> Int4,
         title -> Varchar,
+        updated -> Timestamp,
         user_id -> Int4,
     }
 }
