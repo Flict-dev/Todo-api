@@ -11,5 +11,5 @@ pub struct SchemaNewUser {
 #[derive(Deserialize, Serialize, Apiv2Schema)]
 pub struct SchemaUser {
     pub name: String,
-    pub plain_password: String,
+    pub password: String,
 }

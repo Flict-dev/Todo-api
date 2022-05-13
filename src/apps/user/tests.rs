@@ -70,7 +70,7 @@ mod user_tests {
 
         assert_eq!(serv_user.name, "Test User", "User doesn't match");
 
-        let login_content = json!({"name": "Test User", "plain_password": "test"});
+        let login_content = json!({"name": "Test User", "password": "test"});
         let req = test::TestRequest::post()
             .insert_header(ContentType::json())
             .set_payload(login_content.to_string())

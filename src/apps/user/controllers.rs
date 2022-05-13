@@ -26,7 +26,7 @@ pub async fn login(
     let user = u_logic::get_user_by_name(&conn, &data.name).map_err(AppError::db_not_found)?;
     state
         .crypto
-        .validate_password(data.plain_password.clone(), user.password.clone())
+        .validate_password(data.password.clone(), user.password.clone())
         .map_err(AppError::unauthorized)?;
 
     let token = state.crypto.encode_jwt(user.id).unwrap();

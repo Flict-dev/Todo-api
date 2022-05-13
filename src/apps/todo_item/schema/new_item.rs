@@ -7,11 +7,11 @@ pub struct ResultResponse {
 }
 
 #[derive(Deserialize, Serialize, Apiv2Schema)]
-pub struct SchemaTodoItem {
+pub struct SchemaNewTodoItem {
     pub title: String,
 }
 
 #[derive(Deserialize, Apiv2Schema)]
 pub struct TodoItem {
-    pub id: i32,
+    pub todo_item_id: i32,
 }
