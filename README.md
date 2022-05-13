@@ -28,7 +28,7 @@ cargo run
 curl http://localhost:7878/api/spec/v2
 ```
 ## Swagger schema:memo:
-[here](https://app.swaggerhub.com/apis/Flict-dev/Todo/0.4)
+[here](https://app.swaggerhub.com/apis/Flict-dev/Todo/0.5)
 
 ---
 
