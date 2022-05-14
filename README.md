@@ -1,6 +1,6 @@
 # To Do API
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Flict-dev/Todo-api/Tests?label=build) ![License](https://img.shields.io/github/license/Flict-dev/Todo-api)
+[![made-with-rust](https://img.shields.io/badge/Made%20with-Rust-1f425f.svg)](https://www.rust-lang.org/) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Flict-dev/Todo-api/Tests?label=build) ![License](https://img.shields.io/github/license/Flict-dev/Todo-api)
 
 
 ## Usage:zap:
