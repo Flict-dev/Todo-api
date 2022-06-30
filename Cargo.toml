@@ -10,7 +10,7 @@ actix-web = "4"
 serde = { version = "1.0.137", features = ["derive"] }
 diesel = { version = "1.4.8", features = ["postgres", "r2d2", "chrono"] }
 paperclip = { version = "0.7", features = ["actix4"] }
-r2d2 = "0.8.9"
+r2d2 = "0.8.10"
 dotenv = "0.15.0"
 config = "0.13.0"
 env_logger = "0.9.0"
