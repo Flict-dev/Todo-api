@@ -20,7 +20,7 @@ slog-term = "2.7.0"
 slog-async = "2.7.0"
 jsonwebtoken = "8.1.1"
 sha2 = { version = "0.10", default-features = false }
-chrono = { version = "0.4.20", features = ['serde'] }
+chrono = { version = "0.4.21", features = ['serde'] }
 futures = "0.3.21"
 
 [dev-dependencies]
