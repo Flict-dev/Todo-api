@@ -21,7 +21,7 @@ slog-async = "2.7.0"
 jsonwebtoken = "8.1.1"
 sha2 = { version = "0.10", default-features = false }
 chrono = { version = "0.4.22", features = ['serde'] }
-futures = "0.3.23"
+futures = "0.3.24"
 
 [dev-dependencies]
 lazy_static = "1.4.0"
